@@ -11,7 +11,7 @@ Reservation Management: Customers can search for available cars based on their r
 Rental Rates (Optional): The system can calculate rental rates based on various factors, such as car type, rental duration, and any additional charges or fees.
 
 # Installation
-Clone the repository using git clone https://github.com/your-username/car-rental-management-system.git
+Clone the repository using git clone (https://github.com/IsuraArangala/Rent-A-Car-Management-System)
 Install the required dependencies using npm install
 Create a .env file and add the required environment variables.
 Run the application using npm start
