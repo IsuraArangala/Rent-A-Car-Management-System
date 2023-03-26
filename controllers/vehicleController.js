@@ -1,5 +1,7 @@
 const { Vehicle } = require('../models');
 
+const { Op } = require('sequelize');
+
 // Create a new vehicle
 exports.createVehicle = async (req, res) => {
   try {
@@ -63,8 +65,47 @@ exports.deleteVehicleById = async (req, res) => {
       await vehicle.destroy();
       res.json({ message: 'Vehicle deleted successfully' });
     }
-} catch (err) {
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
+};
+
+exports.searchVehicles = async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  if (!startDate || !endDate) {
+    return res
+      .status(400)
+      .json({ message: 'Please provide both start and end dates.' });
+  }
+
+  const availableVehicles = await Vehicle.findAll({
+    where: {
+      id: {
+        [Op.notIn]: [
+          // Get the IDs of the vehicles that are reserved during the requested dates
+          ...(
+            await Vehicle.findAll({
+              attributes: ['id'],
+              include: [
+                {
+                  model: Reservation,
+                  where: {
+                    [Op.and]: [
+                      { startDate: { [Op.lte]: endDate } },
+                      { endDate: { [Op.gte]: startDate } },
+                      { approved: true },
+                    ],
+                  },
+                },
+              ],
+            })
+          ).map((vehicle) => vehicle.id),
+        ],
+      },
+    },
+  });
+
+  res.json(availableVehicles);
 };
